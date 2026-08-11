@@ -309,7 +309,8 @@
                     </div>
                 </div>
 
-                <a href="#" id="download-btn" class="btn-download" target="_blank" rel="noopener">
+                <!-- Fixed button tag: Removed 'download', added target="_blank" rel="noopener noreferrer" -->
+                <a href="#" id="download-btn" class="btn-download" target="_blank" rel="noopener noreferrer">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
                     </svg>
@@ -388,7 +389,9 @@
                 
                 document.getElementById('whats-new').innerText = data.whatsNew;
                 
-                document.getElementById('download-btn').setAttribute('href', data.apkUrl);
+                // Directly set the direct URL to href
+                const downloadBtn = document.getElementById('download-btn');
+                downloadBtn.setAttribute('href', data.apkUrl);
 
             } catch (error) {
                 console.error('Ralat Auto Update:', error);
