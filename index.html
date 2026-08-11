@@ -261,17 +261,33 @@
 </head>
 <body>
 
-    <header>
-        <div class="logo-container">
-            <svg class="play-logo" viewBox="0 0 512 512" width="28">
-                <path fill="#41A5EE" d="M325.8 256L80.5 11.2C75.2 5.9 68 3 60 3c-14.7 0-27 12.3-27 27v452c0 14.7 12.3 27 27 27 8 0 15.2-2.9 20.5-8.2L325.8 256z"/>
-                <path fill="#22D273" d="M403.8 178l-78 78 78 78 57.7-33.3c15.2-8.8 24.5-24.8 24.5-44.7s-9.3-35.9-24.5-44.7L403.8 178z"/>
-                <path fill="#FFD200" d="M80.5 500.8l245.3-244.8-78-78L32 390.8c6.9 69.3 48.5 110 48.5 110z" opacity="0.2"/>
-                <path fill="#FF3A44" d="M325.8 256l78-78-298.3-172c-5.3-5.3-12.5-8.2-20.5-8.2C70.3 2 58 14.3 58 29c0 5.4 1.6 10.4 4.5 14.6l263.3 212.4z"/>
-            </svg>
-            <span class="nav-title">Google Play</span>
-        </div>
-    </header>
+<header>
+    <div class="logo-container">
+        <svg class="se-logo" viewBox="0 0 512 512" width="28" height="28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="se-bg-grad" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#2563EB" />
+                    <stop offset="100%" stop-color="#7C3AED" />
+                </linearGradient>
+                <linearGradient id="se-stroke-grad" x1="120" y1="120" x2="380" y2="380" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stop-color="#FFFFFF" />
+                    <stop offset="100%" stop-color="#E0E7FF" />
+                </linearGradient>
+            </defs>
+            <!-- Rounded App Icon Base -->
+            <rect x="32" y="32" width="448" height="448" rx="112" fill="url(#se-bg-grad)" />
+            
+            <!-- Monogram 'S' -->
+            <path d="M 225 170 H 165 C 142.909 170 125 187.909 125 210 C 125 232.091 142.909 250 165 250 H 195 C 217.091 250 235 267.909 235 290 C 235 312.091 217.091 330 195 330 H 135" 
+                  stroke="url(#se-stroke-grad)" stroke-width="38" stroke-linecap="round" stroke-linejoin="round" />
+            
+            <!-- Monogram 'E' -->
+            <path d="M 375 170 H 290 V 330 H 375 M 290 250 H 355" 
+                  stroke="url(#se-stroke-grad)" stroke-width="38" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <span class="nav-title">SE Apps Store</span>
+    </div>
+</header>
 
     <div class="container">
         <!-- Hero Section -->
