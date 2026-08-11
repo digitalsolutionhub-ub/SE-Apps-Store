@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muat Turun Aplikasi Android - Google Play Store</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #01875f;
+            --primary-hover: #016c4c;
+            --bg-color: #ffffff;
+            --text-main: #202124;
+            --text-sub: #5f6368;
+            --border-color: #e0e0e0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.5;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 24px;
+            border-bottom: 1px solid var(--border-color);
+            background: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .play-logo {
+            height: 28px;
+        }
+
+        .nav-title {
+            font-size: 18px;
+            color: var(--text-sub);
+            font-weight: 500;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 24px 16px;
+        }
+
+        /* Hero Section */
+        .app-hero {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .app-icon {
+            width: 120px;
+            height: 120px;
+            border-radius: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            object-fit: cover;
+            background-color: #f1f3f4;
+        }
+
+        .app-details {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex: 1;
+        }
+
+        .app-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .developer-name {
+            color: var(--primary-color);
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            text-decoration: none;
+        }
+
+        .meta-badges {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .badge-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-right: 1px solid var(--border-color);
+            padding-right: 20px;
+        }
+
+        .badge-item:last-child {
+            border-right: none;
+        }
+
+        .badge-val {
+            font-weight: 700;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .badge-lbl {
+            font-size: 12px;
+            color: var(--text-sub);
+        }
+
+        /* Download Button */
+        .btn-download {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background-color 0.2s;
+            width: fit-content;
+        }
+
+        .btn-download:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* Screenshots Slider */
+        .section-title {
+            font-size: 20px;
+            font-weight: 500;
+            margin: 24px 0 16px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .screenshots {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 12px;
+            scrollbar-width: thin;
+        }
+
+        .screenshots img {
+            height: 300px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            object-fit: cover;
+        }
+
+        /* Description & Release Notes */
+        .card {
+            background: #fff;
+            padding: 16px 0;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .app-desc {
+            color: var(--text-sub);
+            font-size: 14px;
+            white-space: pre-line;
+        }
+
+        .changelog-box {
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 12px;
+            border: 1px solid #e9ecef;
+        }
+
+        .changelog-box h4 {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .changelog-box p {
+            font-size: 13px;
+            color: var(--text-sub);
+        }
+
+        /* Footer Info */
+        .app-spec-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .spec-item {
+            font-size: 13px;
+        }
+
+        .spec-label {
+            color: var(--text-sub);
+        }
+
+        .spec-value {
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .app-hero {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .app-details {
+                align-items: center;
+            }
+
+            .btn-download {
+                width: 100%;
+            }
+
+            .app-spec-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-container">
+            <svg class="play-logo" viewBox="0 0 512 512" width="28">
+                <path fill="#41A5EE" d="M325.8 256L80.5 11.2C75.2 5.9 68 3 60 3c-14.7 0-27 12.3-27 27v452c0 14.7 12.3 27 27 27 8 0 15.2-2.9 20.5-8.2L325.8 256z"/>
+                <path fill="#22D273" d="M403.8 178l-78 78 78 78 57.7-33.3c15.2-8.8 24.5-24.8 24.5-44.7s-9.3-35.9-24.5-44.7L403.8 178z"/>
+                <path fill="#FFD200" d="M80.5 500.8l245.3-244.8-78-78L32 390.8c6.9 69.3 48.5 110 48.5 110z" opacity="0.2"/>
+                <path fill="#FF3A44" d="M325.8 256l78-78-298.3-172c-5.3-5.3-12.5-8.2-20.5-8.2C70.3 2 58 14.3 58 29c0 5.4 1.6 10.4 4.5 14.6l263.3 212.4z"/>
+            </svg>
+            <span class="nav-title">Google Play</span>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="app-hero">
+            <img src="app-icon.png" alt="App Icon" class="app-icon" id="app-icon">
+            <div class="app-details">
+                <h1 class="app-title" id="app-name">Nama Aplikasi</h1>
+                <a href="#" class="developer-name" id="app-developer">Nama Developer</a>
+                
+                <div class="meta-badges">
+                    <div class="badge-item">
+                        <div class="badge-val">4.8 ★</div>
+                        <div class="badge-lbl">Ulasan</div>
+                    </div>
+                    <div class="badge-item">
+                        <div class="badge-val" id="app-size-badge">-- MB</div>
+                        <div class="badge-lbl">Saiz</div>
+                    </div>
+                    <div class="badge-item">
+                        <div class="badge-val">3+</div>
+                        <div class="badge-lbl">Rating Kandungan</div>
+                    </div>
+                </div>
+
+                <a href="#" id="download-btn" class="btn-download" download>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+                    </svg>
+                    Muat Turun APK (<span id="btn-version">v1.0.0</span>)
+                </a>
+            </div>
+        </div>
+
+        <!-- Screenshots -->
+        <div class="section-title">Tangkapan Skrin</div>
+        <div class="screenshots">
+            <img src="https://via.placeholder.com/180x320?text=Screen+1" alt="Screenshot 1">
+            <img src="https://via.placeholder.com/180x320?text=Screen+2" alt="Screenshot 2">
+            <img src="https://via.placeholder.com/180x320?text=Screen+3" alt="Screenshot 3">
+        </div>
+
+        <!-- What's New -->
+        <div class="card">
+            <div class="section-title">Yang Baharu</div>
+            <div class="changelog-box">
+                <h4>Versi <span id="changelog-version">1.0.0</span> (<span id="release-date">Terbaru</span>)</h4>
+                <p id="whats-new">Peningkatan prestasi dan pembaikan ralat.</p>
+            </div>
+        </div>
+
+        <!-- Description -->
+        <div class="card">
+            <div class="section-title">Mengenai Aplikasi Ini</div>
+            <p class="app-desc" id="app-description">
+                Aplikasi ini direka khusus untuk membolehkan pengguna mengakses perkhidmatan dengan pantas, mesra pengguna dan selamat.
+            </p>
+
+            <div class="app-spec-grid">
+                <div class="spec-item">
+                    <div class="spec-label">Versi Terkini</div>
+                    <div class="spec-value" id="spec-version">1.0.0</div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-label">Tarikh Dikemas Kini</div>
+                    <div class="spec-value" id="spec-date">-</div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-label">Saiz Muat Turun</div>
+                    <div class="spec-value" id="spec-size">-</div>
+                </div>
+                <div class="spec-item">
+                    <div class="spec-label">Keperluan Android</div>
+                    <div class="spec-value" id="spec-os">Android 5.0 dan ke atas</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Auto Update -->
+    <script>
+        async function loadAppDetails() {
+            try {
+                // Fetch version.json dengan timestamp elak cache browser
+                const response = await fetch('version.json?t=' + new Date().getTime());
+                if (!response.ok) throw new Error('Gagal memuatkan version.json');
+                
+                const data = await response.json();
+
+                // Kemaskini maklumat dalam halaman
+                document.getElementById('app-name').innerText = data.appName;
+                document.getElementById('app-developer').innerText = data.developer;
+                document.getElementById('app-description').innerText = data.description;
+                
+                // Maklumat Versi & APK
+                document.getElementById('btn-version').innerText = 'v' + data.version;
+                document.getElementById('changelog-version').innerText = data.version;
+                document.getElementById('spec-version').innerText = data.version;
+                
+                document.getElementById('app-size-badge').innerText = data.fileSize;
+                document.getElementById('spec-size').innerText = data.fileSize;
+                
+                document.getElementById('release-date').innerText = data.releaseDate;
+                document.getElementById('spec-date').innerText = data.releaseDate;
+                
+                document.getElementById('whats-new').innerText = data.whatsNew;
+                
+                // Set pautan muat turun APK
+                document.getElementById('download-btn').setAttribute('href', data.apkUrl);
+
+            } catch (error) {
+                console.error('Ralat Auto Update:', error);
+            }
+        }
+
+        // Jalankan fungsi apabila fail siap dimuatkan
+        window.addEventListener('DOMContentLoaded', loadAppDetails);
+    </script>
+</body>
+</html>
