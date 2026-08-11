@@ -147,7 +147,6 @@
             font-size: 16px;
             font-weight: 500;
             cursor: pointer;
-            text-decoration: none;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -238,7 +237,95 @@
             color: var(--text-main);
         }
 
-        /* Responsive */
+        /* Modal Popup Installation Helper */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+            justify-content: center;
+            align-items: flex-end;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 500px;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+            animation: slideUp 0.3s ease;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .steps-list {
+            margin: 16px 0;
+            padding-left: 20px;
+            color: var(--text-sub);
+            font-size: 14px;
+        }
+
+        .steps-list li {
+            margin-bottom: 10px;
+        }
+
+        .steps-list strong {
+            color: var(--text-main);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-modal-close {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            background: #f8f9fa;
+            color: var(--text-main);
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .btn-modal-retry {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: var(--primary-color);
+            color: #fff;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
         @media (max-width: 600px) {
             .app-hero {
                 flex-direction: column;
@@ -304,7 +391,6 @@
                     </div>
                 </div>
 
-                <!-- Download Button with ID trigger -->
                 <button id="download-btn" class="btn-download">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
@@ -359,8 +445,25 @@
         </div>
     </div>
 
-    <!-- Hidden Iframe to Trigger Background Download Prompt -->
-    <iframe id="download-frame" style="display:none;"></iframe>
+    <!-- Popup Instructions Modal -->
+    <div class="modal-overlay" id="install-modal">
+        <div class="modal-card">
+            <div class="modal-title">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#01875f">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14h2v2h-2zm0-10h2v8h-2z"/>
+                </svg>
+                Memulakan Muat Turun...
+            </div>
+            <ol class="steps-list">
+                <li>Sahkan popup keselamatan pelayar dengan menekan <strong>"Download / Muat Turun"</strong>.</li>
+                <li>Apabila selesai, tekan notifikasi pelayar atau butang <strong>"Buka (Open)"</strong> di bawah untuk melancarkan <strong>Pemasang Aplikasi (Package Installer)</strong>.</li>
+            </ol>
+            <div class="modal-actions">
+                <button class="btn-modal-close" onclick="closeModal()">Tutup</button>
+                <button class="btn-modal-retry" onclick="triggerDownload()">Muat Turun Semula</button>
+            </div>
+        </div>
+    </div>
 
     <script>
         let currentApkUrl = '';
@@ -388,7 +491,6 @@
                 
                 document.getElementById('whats-new').innerText = data.whatsNew;
                 
-                // Save APK URL
                 currentApkUrl = data.apkUrl;
 
             } catch (error) {
@@ -396,21 +498,24 @@
             }
         }
 
-        // Trigger native download prompt without leaving the page
-        document.getElementById('download-btn').addEventListener('click', function() {
+        function triggerDownload() {
             if (!currentApkUrl) return;
+            
+            // Direct location handoff to OS Download Manager
+            window.location.href = currentApkUrl;
+        }
 
-            // Trigger download in background iframe so browser doesn't open stuck github tab
-            const downloadFrame = document.getElementById('download-frame');
-            downloadFrame.src = currentApkUrl;
-
-            // Fallback location trigger for browsers blocking iframe downloads
-            setTimeout(() => {
-                if (!downloadFrame.contentWindow) {
-                    window.location.href = currentApkUrl;
-                }
-            }, 1000);
+        document.getElementById('download-btn').addEventListener('click', function() {
+            // 1. Display guided popup modal
+            document.getElementById('install-modal').style.display = 'flex';
+            
+            // 2. Trigger native download handoff
+            triggerDownload();
         });
+
+        function closeModal() {
+            document.getElementById('install-modal').style.display = 'none';
+        }
 
         window.addEventListener('DOMContentLoaded', loadAppDetails);
     </script>
