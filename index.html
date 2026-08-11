@@ -237,7 +237,7 @@
             color: var(--text-main);
         }
 
-        /* Modal Popup Installation Helper */
+        /* Modal Overlay & Popup Card */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -290,27 +290,36 @@
 
         .modal-actions {
             display: flex;
+            flex-direction: column;
             gap: 10px;
             margin-top: 20px;
         }
 
-        .btn-modal-close {
-            flex: 1;
+        .btn-modal-retry {
             padding: 12px;
-            border: 1px solid var(--border-color);
-            background: #f8f9fa;
-            color: var(--text-main);
+            border: none;
+            background: var(--primary-color);
+            color: #fff;
             border-radius: 8px;
             font-weight: 500;
             cursor: pointer;
         }
 
-        .btn-modal-retry {
-            flex: 1;
+        .btn-modal-copy {
             padding: 12px;
-            border: none;
-            background: var(--primary-color);
-            color: #fff;
+            border: 1px solid var(--primary-color);
+            background: #e6f4ea;
+            color: var(--primary-color);
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .btn-modal-close {
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            background: #f8f9fa;
+            color: var(--text-main);
             border-radius: 8px;
             font-weight: 500;
             cursor: pointer;
@@ -324,6 +333,15 @@
         @keyframes slideUp {
             from { transform: translateY(100%); }
             to { transform: translateY(0); }
+        }
+
+        @media (min-width: 480px) {
+            .modal-actions {
+                flex-direction: row;
+            }
+            .btn-modal-retry, .btn-modal-copy, .btn-modal-close {
+                flex: 1;
+            }
         }
 
         @media (max-width: 600px) {
@@ -455,12 +473,14 @@
                 Memulakan Muat Turun...
             </div>
             <ol class="steps-list">
-                <li>Sahkan popup keselamatan pelayar dengan menekan <strong>"Download / Muat Turun"</strong>.</li>
-                <li>Apabila selesai, tekan notifikasi pelayar atau butang <strong>"Buka (Open)"</strong> di bawah untuk melancarkan <strong>Pemasang Aplikasi (Package Installer)</strong>.</li>
+                <li>Sahkan dialog keselamatan pelayar dengan menekan <strong>"Muat Turun / Download"</strong>.</li>
+                <li>Jika muat turun tersangkut, tekan <strong>"Salin Pautan"</strong> dan tampal (paste) pautan di <strong>Tab Incognito</strong> Chrome.</li>
+                <li>Selepas selesai, tekan notifikasi pelayar atau butang <strong>"Buka (Open)"</strong> untuk memasang aplikasi.</li>
             </ol>
             <div class="modal-actions">
-                <button class="btn-modal-close" onclick="closeModal()">Tutup</button>
                 <button class="btn-modal-retry" onclick="triggerDownload()">Muat Turun Semula</button>
+                <button class="btn-modal-copy" onclick="copyApkLink()">Salin Pautan</button>
+                <button class="btn-modal-close" onclick="closeModal()">Tutup</button>
             </div>
         </div>
     </div>
@@ -498,18 +518,56 @@
             }
         }
 
+        // METHOD 1: Android Intent scheme to bypass Chrome internal webview stalling
         function triggerDownload() {
             if (!currentApkUrl) return;
-            
-            // Direct location handoff to OS Download Manager
-            window.location.href = currentApkUrl;
+
+            const isAndroid = /Android/i.test(navigator.userAgent);
+
+            if (isAndroid) {
+                // Strip http/https prefix for intent scheme format
+                const cleanUrl = currentApkUrl.replace(/^https?:\/\//, '');
+                // Pass directly to Android System Download Manager / Package Installer
+                const intentUrl = `intent://${cleanUrl}#Intent;scheme=https;type=application/vnd.android.package-archive;end;`;
+                window.location.href = intentUrl;
+            } else {
+                window.location.href = currentApkUrl;
+            }
+        }
+
+        // METHOD 3: Copy direct APK URL to clipboard for pasting into Incognito mode
+        function copyApkLink() {
+            if (!currentApkUrl) return;
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(currentApkUrl).then(() => {
+                    alert('Pautan APK telah disalin! Buka Tab Incognito di Chrome dan "Paste" pautan ini untuk muat turun secara terus.');
+                }).catch(() => {
+                    fallbackCopyTextToClipboard(currentApkUrl);
+                });
+            } else {
+                fallbackCopyTextToClipboard(currentApkUrl);
+            }
+        }
+
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert('Pautan APK telah disalin! Buka Tab Incognito di Chrome dan "Paste" pautan ini untuk muat turun secara terus.');
+            } catch (err) {
+                alert('Gagal menyalin pautan. Sila salin secara manual: ' + text);
+            }
+            document.body.removeChild(textArea);
         }
 
         document.getElementById('download-btn').addEventListener('click', function() {
-            // 1. Display guided popup modal
             document.getElementById('install-modal').style.display = 'flex';
-            
-            // 2. Trigger native download handoff
             triggerDownload();
         });
 
