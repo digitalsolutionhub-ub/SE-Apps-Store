@@ -288,6 +288,22 @@
             color: var(--text-main);
         }
 
+        .timer-box {
+            background: #e8f0fe;
+            border: 1px solid #d2e3fc;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 12px;
+            font-size: 13px;
+            color: #174ea6;
+            text-align: center;
+        }
+
+        .timer-box strong {
+            font-size: 15px;
+            color: #1a73e8;
+        }
+
         .modal-actions {
             display: flex;
             flex-direction: column;
@@ -303,9 +319,11 @@
             border-radius: 8px;
             font-weight: 500;
             cursor: pointer;
+            text-align: center;
+            text-decoration: none;
         }
 
-        .btn-modal-direct {
+        .btn-modal-blank {
             padding: 12px;
             border: 1px solid var(--primary-color);
             background: #e6f4ea;
@@ -313,14 +331,11 @@
             border-radius: 8px;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .btn-modal-direct:disabled {
-            background: #f1f3f4;
-            border-color: var(--border-color);
-            color: #9aa0a6;
-            cursor: not-allowed;
+            text-align: center;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .btn-modal-close {
@@ -331,6 +346,7 @@
             border-radius: 8px;
             font-weight: 500;
             cursor: pointer;
+            text-align: center;
         }
 
         @keyframes fadeIn {
@@ -347,7 +363,7 @@
             .modal-actions {
                 flex-direction: row;
             }
-            .btn-modal-retry, .btn-modal-direct, .btn-modal-close {
+            .btn-modal-retry, .btn-modal-blank, .btn-modal-close {
                 flex: 1;
             }
         }
@@ -480,14 +496,24 @@
                 </svg>
                 Memulakan Muat Turun...
             </div>
+            
             <ol class="steps-list">
                 <li>Sahkan dialog keselamatan pelayar dengan menekan <strong>"Muat Turun / Download"</strong>.</li>
-                <li>Jika muat turun tidak berjalan, butang <strong>"Muat Turun Terus"</strong> akan aktif selepas 10 saat.</li>
-                <li>Selepas selesai, tekan notifikasi pelayar atau butang <strong>"Buka (Open)"</strong> untuk memasang aplikasi.</li>
+                <li>Jika muat turun automatik tersangkut, tekan butang <strong>"Muat Turun di Tab Baharu"</strong>.</li>
             </ol>
+
+            <div class="timer-box" id="timer-status">
+                Memulakan muat turun automatik... (<strong id="timer-countdown">10</strong>s)
+            </div>
+
             <div class="modal-actions">
                 <button class="btn-modal-retry" onclick="triggerDownload()">Muat Turun Semula</button>
-                <button id="btn-direct" class="btn-modal-direct" onclick="directDownload()" disabled>Muat Turun Terus (10s)</button>
+                
+                <!-- METHOD 3: Direct Download via New Tab (_blank) -->
+                <a id="blank-download-btn" href="#" target="_blank" rel="noopener noreferrer" class="btn-modal-blank">
+                    Tab Baharu (_blank)
+                </a>
+
                 <button class="btn-modal-close" onclick="closeModal()">Tutup</button>
             </div>
         </div>
@@ -495,8 +521,8 @@
 
     <script>
         let currentApkUrl = '';
-        let countdownTimer = null;
-        let timeLeft = 10;
+        let timerInterval = null;
+        let countdownValue = 10;
 
         async function loadAppDetails() {
             try {
@@ -523,6 +549,12 @@
                 
                 currentApkUrl = data.apkUrl;
 
+                // Update METHOD 3: Direct Link target="_blank"
+                const blankBtn = document.getElementById('blank-download-btn');
+                if (blankBtn) {
+                    blankBtn.href = currentApkUrl;
+                }
+
             } catch (error) {
                 console.error('Ralat Auto Update:', error);
             }
@@ -535,7 +567,9 @@
             const isAndroid = /Android/i.test(navigator.userAgent);
 
             if (isAndroid) {
+                // Strip http/https prefix for intent scheme format
                 const cleanUrl = currentApkUrl.replace(/^https?:\/\//, '');
+                // Pass directly to Android System Download Manager / Package Installer
                 const intentUrl = `intent://${cleanUrl}#Intent;scheme=https;type=application/vnd.android.package-archive;end;`;
                 window.location.href = intentUrl;
             } else {
@@ -543,48 +577,51 @@
             }
         }
 
-        // METHOD 3 (UPDATED): Direct Download Fallback with 10-Second Timer
+        // Timer 10 Saat
         function startDownloadTimer() {
-            clearInterval(countdownTimer);
-            timeLeft = 10;
+            clearInterval(timerInterval);
+            countdownValue = 10;
             
-            const directBtn = document.getElementById('btn-direct');
-            directBtn.disabled = true;
-            directBtn.innerText = `Muat Turun Terus (${timeLeft}s)`;
+            const countdownEl = document.getElementById('timer-countdown');
+            const timerBox = document.getElementById('timer-status');
+            
+            timerBox.style.background = '#e8f0fe';
+            timerBox.style.color = '#174ea6';
+            timerBox.innerHTML = `Memulakan muat turun automatik... (<strong id="timer-countdown">10</strong>s)`;
 
-            countdownTimer = setInterval(() => {
-                timeLeft--;
-                if (timeLeft > 0) {
-                    directBtn.innerText = `Muat Turun Terus (${timeLeft}s)`;
-                } else {
-                    clearInterval(countdownTimer);
-                    directBtn.disabled = false;
-                    directBtn.innerText = 'Muat Turun Terus';
+            timerInterval = setInterval(() => {
+                countdownValue--;
+                const currentCount = document.getElementById('timer-countdown');
+                
+                if (currentCount) {
+                    currentCount.innerText = countdownValue;
+                }
+
+                if (countdownValue <= 0) {
+                    clearInterval(timerInterval);
+                    timerBox.style.background = '#fff3cd';
+                    timerBox.style.color = '#856404';
+                    timerBox.innerHTML = `Muat turun tidak bermula? Tekan butang <strong>"Tab Baharu (_blank)"</strong> di bawah.`;
                 }
             }, 1000);
         }
 
-        function directDownload() {
-            if (!currentApkUrl) return;
-
-            // Direct HTTP navigation to trigger default browser downloader
-            const link = document.createElement('a');
-            link.href = currentApkUrl;
-            link.setAttribute('download', '');
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
         document.getElementById('download-btn').addEventListener('click', function() {
             document.getElementById('install-modal').style.display = 'flex';
-            triggerDownload();
-            startDownloadTimer();
+            
+            // Set href link direct ke blank tab
+            const blankBtn = document.getElementById('blank-download-btn');
+            if (blankBtn && currentApkUrl) {
+                blankBtn.href = currentApkUrl;
+            }
+
+            triggerDownload(); // Method 1 execution
+            startDownloadTimer(); // Start 10-second timer
         });
 
         function closeModal() {
             document.getElementById('install-modal').style.display = 'none';
-            clearInterval(countdownTimer);
+            clearInterval(timerInterval);
         }
 
         window.addEventListener('DOMContentLoaded', loadAppDetails);
