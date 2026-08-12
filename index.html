@@ -305,7 +305,7 @@
             cursor: pointer;
         }
 
-        .btn-modal-copy {
+        .btn-modal-direct {
             padding: 12px;
             border: 1px solid var(--primary-color);
             background: #e6f4ea;
@@ -313,6 +313,14 @@
             border-radius: 8px;
             font-weight: 500;
             cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-modal-direct:disabled {
+            background: #f1f3f4;
+            border-color: var(--border-color);
+            color: #9aa0a6;
+            cursor: not-allowed;
         }
 
         .btn-modal-close {
@@ -339,7 +347,7 @@
             .modal-actions {
                 flex-direction: row;
             }
-            .btn-modal-retry, .btn-modal-copy, .btn-modal-close {
+            .btn-modal-retry, .btn-modal-direct, .btn-modal-close {
                 flex: 1;
             }
         }
@@ -474,12 +482,12 @@
             </div>
             <ol class="steps-list">
                 <li>Sahkan dialog keselamatan pelayar dengan menekan <strong>"Muat Turun / Download"</strong>.</li>
-                <li>Jika muat turun tersangkut, tekan <strong>"Salin Pautan"</strong> dan tampal (paste) pautan di <strong>Tab Incognito</strong> Chrome.</li>
+                <li>Jika muat turun tidak berjalan, butang <strong>"Muat Turun Terus"</strong> akan aktif selepas 10 saat.</li>
                 <li>Selepas selesai, tekan notifikasi pelayar atau butang <strong>"Buka (Open)"</strong> untuk memasang aplikasi.</li>
             </ol>
             <div class="modal-actions">
                 <button class="btn-modal-retry" onclick="triggerDownload()">Muat Turun Semula</button>
-                <button class="btn-modal-copy" onclick="copyApkLink()">Salin Pautan</button>
+                <button id="btn-direct" class="btn-modal-direct" onclick="directDownload()" disabled>Muat Turun Terus (10s)</button>
                 <button class="btn-modal-close" onclick="closeModal()">Tutup</button>
             </div>
         </div>
@@ -487,6 +495,8 @@
 
     <script>
         let currentApkUrl = '';
+        let countdownTimer = null;
+        let timeLeft = 10;
 
         async function loadAppDetails() {
             try {
@@ -525,9 +535,7 @@
             const isAndroid = /Android/i.test(navigator.userAgent);
 
             if (isAndroid) {
-                // Strip http/https prefix for intent scheme format
                 const cleanUrl = currentApkUrl.replace(/^https?:\/\//, '');
-                // Pass directly to Android System Download Manager / Package Installer
                 const intentUrl = `intent://${cleanUrl}#Intent;scheme=https;type=application/vnd.android.package-archive;end;`;
                 window.location.href = intentUrl;
             } else {
@@ -535,44 +543,48 @@
             }
         }
 
-        // METHOD 3: Copy direct APK URL to clipboard for pasting into Incognito mode
-        function copyApkLink() {
-            if (!currentApkUrl) return;
+        // METHOD 3 (UPDATED): Direct Download Fallback with 10-Second Timer
+        function startDownloadTimer() {
+            clearInterval(countdownTimer);
+            timeLeft = 10;
+            
+            const directBtn = document.getElementById('btn-direct');
+            directBtn.disabled = true;
+            directBtn.innerText = `Muat Turun Terus (${timeLeft}s)`;
 
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(currentApkUrl).then(() => {
-                    alert('Pautan APK telah disalin! Buka Tab Incognito di Chrome dan "Paste" pautan ini untuk muat turun secara terus.');
-                }).catch(() => {
-                    fallbackCopyTextToClipboard(currentApkUrl);
-                });
-            } else {
-                fallbackCopyTextToClipboard(currentApkUrl);
-            }
+            countdownTimer = setInterval(() => {
+                timeLeft--;
+                if (timeLeft > 0) {
+                    directBtn.innerText = `Muat Turun Terus (${timeLeft}s)`;
+                } else {
+                    clearInterval(countdownTimer);
+                    directBtn.disabled = false;
+                    directBtn.innerText = 'Muat Turun Terus';
+                }
+            }, 1000);
         }
 
-        function fallbackCopyTextToClipboard(text) {
-            const textArea = document.createElement("textarea");
-            textArea.value = text;
-            textArea.style.position = "fixed";
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
-            try {
-                document.execCommand('copy');
-                alert('Pautan APK telah disalin! Buka Tab Incognito di Chrome dan "Paste" pautan ini untuk muat turun secara terus.');
-            } catch (err) {
-                alert('Gagal menyalin pautan. Sila salin secara manual: ' + text);
-            }
-            document.body.removeChild(textArea);
+        function directDownload() {
+            if (!currentApkUrl) return;
+
+            // Direct HTTP navigation to trigger default browser downloader
+            const link = document.createElement('a');
+            link.href = currentApkUrl;
+            link.setAttribute('download', '');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         }
 
         document.getElementById('download-btn').addEventListener('click', function() {
             document.getElementById('install-modal').style.display = 'flex';
             triggerDownload();
+            startDownloadTimer();
         });
 
         function closeModal() {
             document.getElementById('install-modal').style.display = 'none';
+            clearInterval(countdownTimer);
         }
 
         window.addEventListener('DOMContentLoaded', loadAppDetails);
