@@ -323,7 +323,7 @@
             text-decoration: none;
         }
 
-        .btn-modal-blank {
+        .btn-modal-direct {
             padding: 12px;
             border: 1px solid var(--primary-color);
             background: #e6f4ea;
@@ -363,7 +363,7 @@
             .modal-actions {
                 flex-direction: row;
             }
-            .btn-modal-retry, .btn-modal-blank, .btn-modal-close {
+            .btn-modal-retry, .btn-modal-direct, .btn-modal-close {
                 flex: 1;
             }
         }
@@ -499,7 +499,7 @@
             
             <ol class="steps-list">
                 <li>Sahkan dialog keselamatan pelayar dengan menekan <strong>"Muat Turun / Download"</strong>.</li>
-                <li>Jika muat turun automatik tersangkut, tekan butang <strong>"Tab Baharu (_blank)"</strong>.</li>
+                <li>Jika muat turun automatik tidak bermula, tekan <strong>"Muat Turun Direct"</strong> di bawah.</li>
             </ol>
 
             <div class="timer-box" id="timer-status">
@@ -509,9 +509,9 @@
             <div class="modal-actions">
                 <button class="btn-modal-retry" onclick="triggerDownload()">Muat Turun Semula</button>
                 
-                <!-- METHOD 3: Direct Download via New Tab (_blank) pointing to new URL -->
-                <a id="blank-download-btn" href="https://drive.google.com/file/d/1Q_wDtnzKfaZZGk4CwlGDEjeoK04MsUvA/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn-modal-blank">
-                    Tab Baharu (_blank)
+                <!-- METHOD 3: Direct Download via Google Drive URL -->
+                <a id="direct-download-btn" href="https://drive.google.com/file/d/1Q_wDtnzKfaZZGk4CwlGDEjeoK04MsUvA/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn-modal-direct">
+                    Muat Turun Direct
                 </a>
 
                 <button class="btn-modal-close" onclick="closeModal()">Tutup</button>
@@ -577,7 +577,6 @@
             countdownValue = 10;
             
             const timerBox = document.getElementById('timer-status');
-            
             timerBox.style.background = '#e8f0fe';
             timerBox.style.color = '#174ea6';
             timerBox.innerHTML = `Memulakan muat turun automatik... (<strong id="timer-countdown">10</strong>s)`;
@@ -594,7 +593,7 @@
                     clearInterval(timerInterval);
                     timerBox.style.background = '#fff3cd';
                     timerBox.style.color = '#856404';
-                    timerBox.innerHTML = `Muat turun tidak bermula? Tekan butang <strong>"Tab Baharu (_blank)"</strong> di bawah.`;
+                    timerBox.innerHTML = `Muat turun tidak bermula? Tekan butang <strong>"Muat Turun Direct"</strong> di bawah.`;
                 }
             }, 1000);
         }
@@ -602,7 +601,7 @@
         document.getElementById('download-btn').addEventListener('click', function() {
             document.getElementById('install-modal').style.display = 'flex';
             triggerDownload(); // Method 1 execution
-            startDownloadTimer(); // Start 10-second timer
+            startDownloadTimer(); // Start 10-second countdown
         });
 
         function closeModal() {
