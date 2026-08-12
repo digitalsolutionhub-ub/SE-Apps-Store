@@ -320,7 +320,6 @@
             font-weight: 500;
             cursor: pointer;
             text-align: center;
-            text-decoration: none;
         }
 
         .btn-modal-direct {
@@ -336,6 +335,17 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        /* State Disabled Untuk Direct Download Link */
+        .btn-modal-direct.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+            cursor: not-allowed;
+            background: #f1f3f4;
+            border-color: #dadce0;
+            color: #70757a;
         }
 
         .btn-modal-close {
@@ -499,7 +509,7 @@
             
             <ol class="steps-list">
                 <li>Sahkan dialog keselamatan pelayar dengan menekan <strong>"Muat Turun / Download"</strong>.</li>
-                <li>Jika muat turun automatik tidak bermula, tekan <strong>"Muat Turun Direct"</strong> di bawah.</li>
+                <li>Jika muat turun automatik tersangkut, tunggu 10 saat dan tekan butang <strong>"Direct Download"</strong>.</li>
             </ol>
 
             <div class="timer-box" id="timer-status">
@@ -509,9 +519,13 @@
             <div class="modal-actions">
                 <button class="btn-modal-retry" onclick="triggerDownload()">Muat Turun Semula</button>
                 
-                <!-- METHOD 3: Direct Download via Google Drive URL -->
-                <a id="direct-download-btn" href="https://drive.google.com/file/d/1Q_wDtnzKfaZZGk4CwlGDEjeoK04MsUvA/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="btn-modal-direct">
-                    Muat Turun Direct
+                <!-- METHOD 3: Direct Download Link ke Google Drive (Disabled secara default) -->
+                <a id="direct-download-btn" 
+                   href="https://drive.google.com/file/d/1Q_wDtnzKfaZZGk4CwlGDEjeoK04MsUvA/view?usp=drivesdk" 
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   class="btn-modal-direct disabled">
+                    Direct Download
                 </a>
 
                 <button class="btn-modal-close" onclick="closeModal()">Tutup</button>
@@ -561,9 +575,7 @@
             const isAndroid = /Android/i.test(navigator.userAgent);
 
             if (isAndroid) {
-                // Strip http/https prefix for intent scheme format
                 const cleanUrl = currentApkUrl.replace(/^https?:\/\//, '');
-                // Pass directly to Android System Download Manager / Package Installer
                 const intentUrl = `intent://${cleanUrl}#Intent;scheme=https;type=application/vnd.android.package-archive;end;`;
                 window.location.href = intentUrl;
             } else {
@@ -571,12 +583,20 @@
             }
         }
 
-        // Timer 10 Saat
+        // Timer 10 Saat & Activate Direct Download Button
         function startDownloadTimer() {
             clearInterval(timerInterval);
             countdownValue = 10;
             
+            const countdownEl = document.getElementById('timer-countdown');
             const timerBox = document.getElementById('timer-status');
+            const directBtn = document.getElementById('direct-download-btn');
+            
+            // Set butang ke keadaan terkunci (disabled)
+            if (directBtn) {
+                directBtn.classList.add('disabled');
+            }
+            
             timerBox.style.background = '#e8f0fe';
             timerBox.style.color = '#174ea6';
             timerBox.innerHTML = `Memulakan muat turun automatik... (<strong id="timer-countdown">10</strong>s)`;
@@ -591,9 +611,14 @@
 
                 if (countdownValue <= 0) {
                     clearInterval(timerInterval);
-                    timerBox.style.background = '#fff3cd';
-                    timerBox.style.color = '#856404';
-                    timerBox.innerHTML = `Muat turun tidak bermula? Tekan butang <strong>"Muat Turun Direct"</strong> di bawah.`;
+                    timerBox.style.background = '#d4edda';
+                    timerBox.style.color = '#155724';
+                    timerBox.innerHTML = `Muat turun tidak bermula? Sila tekan butang <strong>"Direct Download"</strong> di bawah.`;
+                    
+                    // Aktifkan butang Direct Download selepas 10 saat
+                    if (directBtn) {
+                        directBtn.classList.remove('disabled');
+                    }
                 }
             }, 1000);
         }
@@ -601,7 +626,7 @@
         document.getElementById('download-btn').addEventListener('click', function() {
             document.getElementById('install-modal').style.display = 'flex';
             triggerDownload(); // Method 1 execution
-            startDownloadTimer(); // Start 10-second countdown
+            startDownloadTimer(); // Mula pemasa 10 saat
         });
 
         function closeModal() {
