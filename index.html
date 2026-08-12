@@ -288,22 +288,6 @@
             color: var(--text-main);
         }
 
-        .timer-box {
-            background: #e8f0fe;
-            border: 1px solid #d2e3fc;
-            padding: 12px;
-            border-radius: 8px;
-            margin-top: 12px;
-            font-size: 13px;
-            color: #174ea6;
-            text-align: center;
-        }
-
-        .timer-box strong {
-            font-size: 15px;
-            color: #1a73e8;
-        }
-
         .modal-actions {
             display: flex;
             flex-direction: column;
@@ -320,10 +304,9 @@
             font-weight: 500;
             cursor: pointer;
             text-align: center;
-            text-decoration: none;
         }
 
-        .btn-modal-blank {
+        .btn-modal-copy {
             padding: 12px;
             border: 1px solid var(--primary-color);
             background: #e6f4ea;
@@ -332,10 +315,6 @@
             font-weight: 500;
             cursor: pointer;
             text-align: center;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
         }
 
         .btn-modal-close {
@@ -363,7 +342,7 @@
             .modal-actions {
                 flex-direction: row;
             }
-            .btn-modal-retry, .btn-modal-blank, .btn-modal-close {
+            .btn-modal-retry, .btn-modal-copy, .btn-modal-close {
                 flex: 1;
             }
         }
@@ -499,20 +478,15 @@
             
             <ol class="steps-list">
                 <li>Sahkan dialog keselamatan pelayar dengan menekan <strong>"Muat Turun / Download"</strong>.</li>
-                <li>Jika muat turun automatik tersangkut, tekan butang <strong>"Muat Turun di Tab Baharu"</strong>.</li>
+                <li>Jika muat turun tersangkut, tekan <strong>"Salin Pautan"</strong> dan tampal (paste) pautan di <strong>Tab Incognito</strong> Chrome.</li>
+                <li>Selepas selesai, tekan notifikasi pelayar atau butang <strong>"Buka (Open)"</strong> untuk memasang aplikasi.</li>
             </ol>
-
-            <div class="timer-box" id="timer-status">
-                Memulakan muat turun automatik... (<strong id="timer-countdown">10</strong>s)
-            </div>
 
             <div class="modal-actions">
                 <button class="btn-modal-retry" onclick="triggerDownload()">Muat Turun Semula</button>
                 
-                <!-- METHOD 3: Direct Download via New Tab (_blank) -->
-                <a id="blank-download-btn" href="#" target="_blank" rel="noopener noreferrer" class="btn-modal-blank">
-                    Tab Baharu (_blank)
-                </a>
+                <!-- METHOD 3: Copy direct APK URL to clipboard -->
+                <button class="btn-modal-copy" onclick="copyApkLink()">Salin Pautan</button>
 
                 <button class="btn-modal-close" onclick="closeModal()">Tutup</button>
             </div>
@@ -521,8 +495,6 @@
 
     <script>
         let currentApkUrl = '';
-        let timerInterval = null;
-        let countdownValue = 10;
 
         async function loadAppDetails() {
             try {
@@ -549,12 +521,6 @@
                 
                 currentApkUrl = data.apkUrl;
 
-                // Update METHOD 3: Direct Link target="_blank"
-                const blankBtn = document.getElementById('blank-download-btn');
-                if (blankBtn) {
-                    blankBtn.href = currentApkUrl;
-                }
-
             } catch (error) {
                 console.error('Ralat Auto Update:', error);
             }
@@ -577,51 +543,44 @@
             }
         }
 
-        // Timer 10 Saat
-        function startDownloadTimer() {
-            clearInterval(timerInterval);
-            countdownValue = 10;
-            
-            const countdownEl = document.getElementById('timer-countdown');
-            const timerBox = document.getElementById('timer-status');
-            
-            timerBox.style.background = '#e8f0fe';
-            timerBox.style.color = '#174ea6';
-            timerBox.innerHTML = `Memulakan muat turun automatik... (<strong id="timer-countdown">10</strong>s)`;
+        // METHOD 3: Copy direct APK URL to clipboard for pasting into Incognito mode
+        function copyApkLink() {
+            if (!currentApkUrl) return;
 
-            timerInterval = setInterval(() => {
-                countdownValue--;
-                const currentCount = document.getElementById('timer-countdown');
-                
-                if (currentCount) {
-                    currentCount.innerText = countdownValue;
-                }
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(currentApkUrl).then(() => {
+                    alert('Pautan APK telah disalin! Buka Tab Incognito di Chrome dan "Paste" pautan ini untuk muat turun secara terus.');
+                }).catch(() => {
+                    fallbackCopyTextToClipboard(currentApkUrl);
+                });
+            } else {
+                fallbackCopyTextToClipboard(currentApkUrl);
+            }
+        }
 
-                if (countdownValue <= 0) {
-                    clearInterval(timerInterval);
-                    timerBox.style.background = '#fff3cd';
-                    timerBox.style.color = '#856404';
-                    timerBox.innerHTML = `Muat turun tidak bermula? Tekan butang <strong>"Tab Baharu (_blank)"</strong> di bawah.`;
-                }
-            }, 1000);
+        function fallbackCopyTextToClipboard(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert('Pautan APK telah disalin! Buka Tab Incognito di Chrome dan "Paste" pautan ini untuk muat turun secara terus.');
+            } catch (err) {
+                alert('Gagal menyalin pautan. Sila salin secara manual: ' + text);
+            }
+            document.body.removeChild(textArea);
         }
 
         document.getElementById('download-btn').addEventListener('click', function() {
             document.getElementById('install-modal').style.display = 'flex';
-            
-            // Set href link direct ke blank tab
-            const blankBtn = document.getElementById('blank-download-btn');
-            if (blankBtn && currentApkUrl) {
-                blankBtn.href = currentApkUrl;
-            }
-
             triggerDownload(); // Method 1 execution
-            startDownloadTimer(); // Start 10-second timer
         });
 
         function closeModal() {
             document.getElementById('install-modal').style.display = 'none';
-            clearInterval(timerInterval);
         }
 
         window.addEventListener('DOMContentLoaded', loadAppDetails);
